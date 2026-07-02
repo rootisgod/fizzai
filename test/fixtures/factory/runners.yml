@@ -1,0 +1,15 @@
+local:
+  id: <%= ActiveRecord::FixtureSet.identify("factory_local_runner", :uuid) %>
+  account: 37s_uuid
+  name: Local Runner
+  kind: dry_run
+  token: local-runner-token
+  active: true
+
+inactive:
+  id: <%= ActiveRecord::FixtureSet.identify("factory_inactive_runner", :uuid) %>
+  account: 37s_uuid
+  name: Inactive Runner
+  kind: dry_run
+  token: inactive-runner-token
+  active: false

@@ -1,0 +1,18 @@
+{
+  "name": "fizzy-factory-runner",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Local Fizzy software-factory runner backed by Sandcastle and Codex CLI.",
+  "scripts": {
+    "poll": "node src/runner.mjs",
+    "once": "node src/runner.mjs --once",
+    "demo:test": "npm --prefix demo/simple-api test"
+  },
+  "dependencies": {
+    "@ai-hero/sandcastle": "^0.12.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

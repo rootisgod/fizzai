@@ -1,0 +1,5 @@
+codex_local_rails_builder:
+  id: <%= ActiveRecord::FixtureSet.identify("factory_codex_local_rails_builder", :uuid) %>
+  account: 37s_uuid
+  profile: codex_local
+  skill: rails_builder

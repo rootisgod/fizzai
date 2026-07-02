@@ -109,6 +109,30 @@ Rails.application.routes.draw do
 
   resources :tags, only: :index
 
+  namespace :factory do
+    root to: "runs#index"
+
+    resources :runs, only: %i[ index show create ]
+    resources :profiles
+    resources :skills
+    resources :runners, only: %i[ index show new create destroy ]
+
+    namespace :runner_api, path: "runner" do
+      resource :heartbeat, only: :create
+      resource :claim, only: :create
+
+      resources :runs, only: [] do
+        scope module: :runs do
+          resource :heartbeat, only: :create
+          resources :logs, only: :create
+          resource :completion, only: :create
+          resource :failure, only: :create
+          resource :block, only: :create
+        end
+      end
+    end
+  end
+
   namespace :notifications do
     resource :settings
     resource :unsubscribe

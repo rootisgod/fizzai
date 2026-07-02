@@ -1,0 +1,69 @@
+<%= form_with model: @profile, data: { controller: "form" }, html: { class: "flex flex-column gap" } do |form| %>
+  <h2 class="txt-large margin-none">
+    <%= form.text_field :name, required: true, autofocus: true, class: "input", placeholder: "Name this profile..." %>
+  </h2>
+
+  <label class="flex flex-column gap-half">
+    <strong>Description</strong>
+    <%= form.text_area :description, rows: 3, class: "input" %>
+  </label>
+
+  <div class="flex gap flex-wrap">
+    <label class="flex flex-column gap-half flex-item-grow">
+      <strong>Brain provider</strong>
+      <%= form.select :brain_provider, Factory::Profile::BRAIN_PROVIDERS, {}, class: "input" %>
+    </label>
+
+    <label class="flex flex-column gap-half flex-item-grow">
+      <strong>Brain model</strong>
+      <%= form.text_field :brain_model, required: true, class: "input" %>
+    </label>
+  </div>
+
+  <label class="flex flex-column gap-half">
+    <strong>Prompt</strong>
+    <%= form.text_area :prompt, rows: 8, class: "input" %>
+  </label>
+
+  <div class="flex gap flex-wrap">
+    <label class="flex flex-column gap-half flex-item-grow">
+      <strong>Runner kind</strong>
+      <%= form.select :runner_kind, Factory::Profile::RUNNER_KINDS, {}, class: "input" %>
+    </label>
+
+    <label class="flex flex-column gap-half">
+      <strong>Max iterations</strong>
+      <%= form.number_field :max_iterations, min: 1, max: 20, class: "input" %>
+    </label>
+
+    <label class="flex flex-column gap-half">
+      <strong>Max attempts</strong>
+      <%= form.number_field :max_attempts, min: 1, max: 10, class: "input" %>
+    </label>
+  </div>
+
+  <label class="flex flex-column gap-half">
+    <strong>Verification command</strong>
+    <%= form.text_field :verification_command, class: "input", placeholder: "npm test" %>
+  </label>
+
+  <fieldset class="flex flex-column gap-half">
+    <legend><strong>Skills</strong></legend>
+    <%= form.hidden_field :skill_ids, multiple: true, value: "" %>
+    <% Current.account.factory_skills.active.ordered.each do |skill| %>
+      <label class="flex align-center gap-half txt-small">
+        <%= form.check_box :skill_ids, { multiple: true, checked: @profile.skills.include?(skill) }, skill.id, nil %>
+        <span><%= skill.name %></span>
+      </label>
+    <% end %>
+  </fieldset>
+
+  <label class="flex align-center gap-half txt-small">
+    <%= form.check_box :active %>
+    <span>Active</span>
+  </label>
+
+  <%= form.button type: :submit, class: "btn btn--link center txt-medium" do %>
+    <span>Save profile</span>
+  <% end %>
+<% end %>

@@ -1,0 +1,42 @@
+<% runs = card.factory_runs.ordered.includes(:profile, :runner).limit(5) %>
+<% profiles = Current.account.factory_profiles.active.ordered %>
+
+<% if runs.any? || Current.user.can_administer_card?(card) %>
+  <section class="panel panel--wide shadow txt-align-start flex flex-column gap margin-block-start">
+    <div class="flex align-center gap flex-wrap">
+      <h2 class="txt-medium margin-none flex-item-grow">Factory</h2>
+      <% if Current.user.admin? %>
+        <%= link_to "Factory settings", factory_root_path, class: "btn btn--link txt-small" %>
+      <% end %>
+    </div>
+
+    <% if Current.user.can_administer_card?(card) %>
+      <% if profiles.any? %>
+        <%= form_with url: factory_runs_path, method: :post, html: { class: "flex align-end gap flex-wrap" } do |form| %>
+          <%= form.hidden_field :card_id, value: card.id %>
+
+          <label class="flex flex-column gap-half flex-item-grow">
+            <strong class="txt-small">Profile</strong>
+            <%= form.collection_select :profile_id, profiles, :id, :name, {}, class: "input" %>
+          </label>
+
+          <%= form.button type: :submit, class: "btn btn--link" do %>
+            <%= icon_tag "add" %>
+            <span>Queue run</span>
+          <% end %>
+        <% end %>
+      <% elsif Current.user.admin? %>
+        <p class="txt-small txt-subtle margin-none">
+          Create a factory profile before queueing work from cards.
+          <%= link_to "New profile", new_factory_profile_path %>
+        </p>
+      <% end %>
+    <% end %>
+
+    <% if runs.any? %>
+      <ul class="unpad margin-none flex flex-column gap-half">
+        <%= render partial: "cards/factory/run", collection: runs, as: :run %>
+      </ul>
+    <% end %>
+  </section>
+<% end %>

@@ -1,0 +1,27 @@
+<% @page_title = @skill.name %>
+
+<% content_for :header do %>
+  <div class="header__actions header__actions--start">
+    <%= back_link_to "Skills", factory_skills_path, "keydown.left@document->hotkey#click keydown.esc@document->hotkey#click" %>
+  </div>
+
+  <h1 class="header__title" data-bridge--title-target="header"><%= @page_title %></h1>
+<% end %>
+
+<article class="panel panel--wide shadow center txt-align-start flex flex-column gap">
+  <% if @skill.description.present? %>
+    <%= simple_format @skill.description, class: "margin-none" %>
+  <% end %>
+
+  <% if @skill.instructions.present? %>
+    <section>
+      <h2 class="txt-medium margin-none">Instructions</h2>
+      <%= simple_format @skill.instructions %>
+    </section>
+  <% end %>
+
+  <div class="flex gap flex-wrap">
+    <%= link_to "Edit", edit_factory_skill_path(@skill), class: "btn btn--link" %>
+    <%= button_to "Deactivate", factory_skill_path(@skill), method: :delete, class: "btn btn--link" if @skill.active? %>
+  </div>
+</article>

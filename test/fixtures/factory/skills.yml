@@ -1,0 +1,14 @@
+rails_builder:
+  id: <%= ActiveRecord::FixtureSet.identify("factory_rails_builder", :uuid) %>
+  account: 37s_uuid
+  name: Rails Builder
+  description: Builds small Rails and JavaScript changes.
+  instructions: Keep changes scoped and run the configured verification command.
+  active: true
+
+inactive_skill:
+  id: <%= ActiveRecord::FixtureSet.identify("factory_inactive_skill", :uuid) %>
+  account: 37s_uuid
+  name: Dormant Skill
+  description: Not available for active profiles.
+  active: false

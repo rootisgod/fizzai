@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.2].define(version: 2026_02_18_120000) do
+ActiveRecord::Schema[8.2].define(version: 2026_07_01_000000) do
   create_table "accesses", id: :uuid, force: :cascade do |t|
     t.datetime "accessed_at"
     t.uuid "account_id", null: false
@@ -322,6 +322,116 @@ ActiveRecord::Schema[8.2].define(version: 2026_02_18_120000) do
     t.index ["account_id"], name: "index_exports_on_account_id"
     t.index ["type"], name: "index_exports_on_type"
     t.index ["user_id"], name: "index_exports_on_user_id"
+  end
+
+  create_table "factory_card_dependencies", id: :uuid, force: :cascade do |t|
+    t.uuid "account_id", null: false
+    t.uuid "child_card_id", null: false
+    t.datetime "created_at", null: false
+    t.uuid "parent_card_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id", "child_card_id"], name: "idx_on_account_id_child_card_id_28702c6888"
+    t.index ["account_id", "parent_card_id"], name: "idx_on_account_id_parent_card_id_2482fee7fb"
+    t.index ["parent_card_id", "child_card_id"], name: "idx_on_parent_card_id_child_card_id_849aa717fa", unique: true
+  end
+
+  create_table "factory_profile_skills", id: :uuid, force: :cascade do |t|
+    t.uuid "account_id", null: false
+    t.datetime "created_at", null: false
+    t.uuid "profile_id", null: false
+    t.uuid "skill_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id", "profile_id"], name: "index_factory_profile_skills_on_account_id_and_profile_id"
+    t.index ["account_id", "skill_id"], name: "index_factory_profile_skills_on_account_id_and_skill_id"
+    t.index ["profile_id", "skill_id"], name: "index_factory_profile_skills_on_profile_id_and_skill_id", unique: true
+  end
+
+  create_table "factory_profiles", id: :uuid, force: :cascade do |t|
+    t.uuid "account_id", null: false
+    t.boolean "active", default: true, null: false
+    t.string "brain_model", limit: 255, default: "gpt-5.4", null: false
+    t.text "brain_options", limit: 65535
+    t.string "brain_provider", limit: 255, default: "codex_cli", null: false
+    t.datetime "created_at", null: false
+    t.text "description", limit: 65535
+    t.integer "max_attempts", default: 2, null: false
+    t.integer "max_iterations", default: 1, null: false
+    t.string "name", limit: 255, null: false
+    t.text "prompt", limit: 65535
+    t.string "runner_kind", limit: 255, default: "sandcastle", null: false
+    t.datetime "updated_at", null: false
+    t.text "verification_command", limit: 65535
+    t.index ["account_id", "active"], name: "index_factory_profiles_on_account_id_and_active"
+    t.index ["account_id", "name"], name: "index_factory_profiles_on_account_id_and_name", unique: true
+  end
+
+  create_table "factory_run_logs", id: :uuid, force: :cascade do |t|
+    t.uuid "account_id", null: false
+    t.text "content", limit: 65535, null: false
+    t.datetime "created_at", null: false
+    t.uuid "run_id", null: false
+    t.integer "sequence", null: false
+    t.string "stream", limit: 255, null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id", "run_id"], name: "index_factory_run_logs_on_account_id_and_run_id"
+    t.index ["run_id", "sequence"], name: "index_factory_run_logs_on_run_id_and_sequence", unique: true
+  end
+
+  create_table "factory_runners", id: :uuid, force: :cascade do |t|
+    t.uuid "account_id", null: false
+    t.boolean "active", default: true, null: false
+    t.datetime "created_at", null: false
+    t.string "kind", limit: 255, default: "sandcastle", null: false
+    t.datetime "last_seen_at"
+    t.text "metadata", limit: 65535
+    t.string "name", limit: 255, null: false
+    t.string "token", limit: 255, null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id", "active"], name: "index_factory_runners_on_account_id_and_active"
+    t.index ["account_id", "name"], name: "index_factory_runners_on_account_id_and_name", unique: true
+    t.index ["token"], name: "index_factory_runners_on_token", unique: true
+  end
+
+  create_table "factory_runs", id: :uuid, force: :cascade do |t|
+    t.uuid "account_id", null: false
+    t.integer "attempts_count", default: 0, null: false
+    t.text "block_reason", limit: 65535
+    t.string "branch_name", limit: 255, null: false
+    t.uuid "card_id", null: false
+    t.datetime "claimed_at"
+    t.string "commit_sha", limit: 255
+    t.datetime "completed_at"
+    t.datetime "created_at", null: false
+    t.text "failure_reason", limit: 65535
+    t.datetime "heartbeat_at"
+    t.integer "max_attempts", default: 2, null: false
+    t.integer "max_iterations", default: 1, null: false
+    t.text "metadata", limit: 65535
+    t.uuid "profile_id", null: false
+    t.uuid "requester_id"
+    t.uuid "runner_id"
+    t.datetime "started_at"
+    t.string "state", limit: 255, default: "queued", null: false
+    t.text "summary", limit: 65535
+    t.datetime "updated_at", null: false
+    t.text "verification_command", limit: 65535
+    t.string "verification_status", limit: 255
+    t.index ["account_id", "card_id"], name: "index_factory_runs_on_account_id_and_card_id"
+    t.index ["account_id", "profile_id"], name: "index_factory_runs_on_account_id_and_profile_id"
+    t.index ["account_id", "runner_id"], name: "index_factory_runs_on_account_id_and_runner_id"
+    t.index ["account_id", "state", "created_at"], name: "index_factory_runs_on_account_id_and_state_and_created_at"
+  end
+
+  create_table "factory_skills", id: :uuid, force: :cascade do |t|
+    t.uuid "account_id", null: false
+    t.boolean "active", default: true, null: false
+    t.datetime "created_at", null: false
+    t.text "description", limit: 65535
+    t.text "instructions", limit: 65535
+    t.string "name", limit: 255, null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id", "active"], name: "index_factory_skills_on_account_id_and_active"
+    t.index ["account_id", "name"], name: "index_factory_skills_on_account_id_and_name", unique: true
   end
 
   create_table "filters", id: :uuid, force: :cascade do |t|

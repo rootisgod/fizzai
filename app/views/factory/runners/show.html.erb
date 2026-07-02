@@ -1,0 +1,34 @@
+<% @page_title = @runner.name %>
+
+<% content_for :header do %>
+  <div class="header__actions header__actions--start">
+    <%= back_link_to "Runners", factory_runners_path, "keydown.left@document->hotkey#click keydown.esc@document->hotkey#click" %>
+  </div>
+
+  <h1 class="header__title" data-bridge--title-target="header"><%= @page_title %></h1>
+<% end %>
+
+<article class="panel panel--wide shadow center txt-align-start flex flex-column gap">
+  <dl class="txt-small">
+    <dt>Kind</dt>
+    <dd><%= @runner.kind %></dd>
+    <dt>Active</dt>
+    <dd><%= @runner.active? ? "Yes" : "No" %></dd>
+    <dt>Last seen</dt>
+    <dd><%= @runner.last_seen_at ? time_tag(@runner.last_seen_at, l(@runner.last_seen_at, format: :day_month_year)) : "Never" %></dd>
+  </dl>
+
+  <section class="flex flex-column gap-half">
+    <h2 class="txt-medium margin-none">Runner token</h2>
+    <code class="txt-small"><%= @runner.token %></code>
+  </section>
+
+  <section class="flex flex-column gap-half">
+    <h2 class="txt-medium margin-none">Environment</h2>
+    <pre class="txt-x-small">FIZZY_BASE_URL=<%= root_url.chomp("/") %>
+FIZZY_RUNNER_TOKEN=<%= @runner.token %>
+FIZZY_RUNNER_REPO=/path/to/target/repo</pre>
+  </section>
+
+  <%= button_to "Deactivate", factory_runner_path(@runner), method: :delete, class: "btn btn--link" if @runner.active? %>
+</article>

@@ -1,0 +1,24 @@
+<%= form_with model: @skill, data: { controller: "form" }, html: { class: "flex flex-column gap" } do |form| %>
+  <h2 class="txt-large margin-none">
+    <%= form.text_field :name, required: true, autofocus: true, class: "input", placeholder: "Name this skill..." %>
+  </h2>
+
+  <label class="flex flex-column gap-half">
+    <strong>Description</strong>
+    <%= form.text_area :description, rows: 3, class: "input" %>
+  </label>
+
+  <label class="flex flex-column gap-half">
+    <strong>Instructions</strong>
+    <%= form.text_area :instructions, rows: 8, class: "input" %>
+  </label>
+
+  <label class="flex align-center gap-half txt-small">
+    <%= form.check_box :active %>
+    <span>Active</span>
+  </label>
+
+  <%= form.button type: :submit, class: "btn btn--link center txt-medium" do %>
+    <span>Save skill</span>
+  <% end %>
+<% end %>

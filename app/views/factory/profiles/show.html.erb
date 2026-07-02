@@ -1,0 +1,49 @@
+<% @page_title = @profile.name %>
+
+<% content_for :header do %>
+  <div class="header__actions header__actions--start">
+    <%= back_link_to "Profiles", factory_profiles_path, "keydown.left@document->hotkey#click keydown.esc@document->hotkey#click" %>
+  </div>
+
+  <h1 class="header__title" data-bridge--title-target="header"><%= @page_title %></h1>
+<% end %>
+
+<article class="panel panel--wide shadow center txt-align-start flex flex-column gap">
+  <dl class="txt-small">
+    <dt>Brain</dt>
+    <dd><%= @profile.brain_provider %> <%= @profile.brain_model %></dd>
+    <dt>Runner</dt>
+    <dd><%= @profile.runner_kind %></dd>
+    <dt>Attempts</dt>
+    <dd><%= @profile.max_attempts %></dd>
+    <dt>Iterations</dt>
+    <dd><%= @profile.max_iterations %></dd>
+    <dt>Verification</dt>
+    <dd><%= @profile.verification_command.presence || "None" %></dd>
+  </dl>
+
+  <% if @profile.prompt.present? %>
+    <section>
+      <h2 class="txt-medium margin-none">Prompt</h2>
+      <%= simple_format @profile.prompt %>
+    </section>
+  <% end %>
+
+  <section class="flex flex-column gap-half">
+    <h2 class="txt-medium margin-none">Skills</h2>
+    <% if @profile.skills.any? %>
+      <ul class="margin-none">
+        <% @profile.skills.ordered.each do |skill| %>
+          <li><%= link_to skill.name, factory_skill_path(skill) %></li>
+        <% end %>
+      </ul>
+    <% else %>
+      <p class="margin-none txt-small txt-subtle">No skills attached.</p>
+    <% end %>
+  </section>
+
+  <div class="flex gap flex-wrap">
+    <%= link_to "Edit", edit_factory_profile_path(@profile), class: "btn btn--link" %>
+    <%= button_to "Deactivate", factory_profile_path(@profile), method: :delete, class: "btn btn--link" if @profile.active? %>
+  </div>
+</article>

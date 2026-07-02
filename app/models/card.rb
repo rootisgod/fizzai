@@ -8,6 +8,11 @@ class Card < ApplicationRecord
   belongs_to :creator, class_name: "User", default: -> { Current.user }
 
   has_many :reactions, -> { order(:created_at) }, as: :reactable, dependent: :delete_all
+  has_many :factory_runs, class_name: "Factory::Run", dependent: :destroy
+  has_many :factory_parent_dependencies, class_name: "Factory::CardDependency", foreign_key: :child_card_id, dependent: :destroy
+  has_many :factory_child_dependencies, class_name: "Factory::CardDependency", foreign_key: :parent_card_id, dependent: :destroy
+  has_many :factory_parent_cards, through: :factory_parent_dependencies, source: :parent_card
+  has_many :factory_child_cards, through: :factory_child_dependencies, source: :child_card
   has_one_attached :image, dependent: :purge_later
 
   has_rich_text :description

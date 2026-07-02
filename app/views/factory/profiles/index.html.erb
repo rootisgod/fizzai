@@ -1,0 +1,37 @@
+<% @page_title = "Factory Profiles" %>
+
+<% content_for :header do %>
+  <div class="header__actions header__actions--start">
+    <%= back_link_to "Factory", factory_root_path, "keydown.left@document->hotkey#click keydown.esc@document->hotkey#click" %>
+  </div>
+
+  <h1 class="header__title" data-bridge--title-target="header"><%= @page_title %></h1>
+<% end %>
+
+<section class="panel panel--wide shadow center txt-align-start flex flex-column gap">
+  <% if @profiles.any? %>
+    <ul class="unpad margin-none flex flex-column gap">
+      <% @profiles.each do |profile| %>
+        <li class="flex flex-column gap-half">
+          <div class="flex align-center gap flex-wrap">
+            <strong><%= link_to profile.name, factory_profile_path(profile) %></strong>
+            <span class="txt-small txt-subtle"><%= profile.brain_provider %> / <%= profile.runner_kind %></span>
+            <% unless profile.active? %>
+              <span class="txt-small txt-subtle">Inactive</span>
+            <% end %>
+          </div>
+          <% if profile.description.present? %>
+            <p class="margin-none txt-small txt-subtle"><%= profile.description %></p>
+          <% end %>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <p class="margin-none">No profiles yet.</p>
+  <% end %>
+
+  <%= link_to new_factory_profile_path, class: "btn btn--link" do %>
+    <%= icon_tag "add" %>
+    <span>New profile</span>
+  <% end %>
+</section>

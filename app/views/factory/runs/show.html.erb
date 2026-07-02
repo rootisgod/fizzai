@@ -1,0 +1,63 @@
+<% @page_title = "Factory Run" %>
+
+<% content_for :header do %>
+  <div class="header__actions header__actions--start">
+    <%= back_link_to "Factory", factory_root_path, "keydown.left@document->hotkey#click keydown.esc@document->hotkey#click" %>
+  </div>
+
+  <h1 class="header__title" data-bridge--title-target="header"><%= @page_title %></h1>
+<% end %>
+
+<article class="panel panel--wide shadow center txt-align-start flex flex-column gap">
+  <header class="flex flex-column gap-half">
+    <h2 class="txt-large margin-none"><%= link_to "##{@run.card.number} #{@run.card.title}", @run.card %></h2>
+    <p class="margin-none txt-small txt-subtle">
+      <%= @run.profile.name %> / <%= @run.state.humanize %> / <%= @run.branch_name %>
+    </p>
+  </header>
+
+  <dl class="txt-small">
+    <dt>Brain</dt>
+    <dd><%= @run.profile.brain_provider %> <%= @run.profile.brain_model %></dd>
+    <dt>Runner</dt>
+    <dd><%= @run.runner&.name || "Unclaimed" %></dd>
+    <dt>Attempts</dt>
+    <dd><%= @run.attempts_count %> / <%= @run.max_attempts %></dd>
+    <dt>Verification</dt>
+    <dd><%= @run.verification_status.presence || @run.verification_command.presence || "Not reported" %></dd>
+    <% if @run.commit_sha.present? %>
+      <dt>Commit</dt>
+      <dd><code><%= @run.commit_sha %></code></dd>
+    <% end %>
+  </dl>
+
+  <% if @run.summary.present? %>
+    <section class="flex flex-column gap-half">
+      <h3 class="txt-medium margin-none">Summary</h3>
+      <%= simple_format @run.summary, class: "margin-none" %>
+    </section>
+  <% end %>
+
+  <% if @run.failure_reason.present? || @run.block_reason.present? %>
+    <section class="flex flex-column gap-half">
+      <h3 class="txt-medium margin-none">Runner message</h3>
+      <p class="margin-none"><%= @run.failure_reason.presence || @run.block_reason %></p>
+    </section>
+  <% end %>
+
+  <section class="flex flex-column gap-half">
+    <h3 class="txt-medium margin-none">Logs</h3>
+    <% if @run.logs.any? %>
+      <ol class="unpad margin-none flex flex-column gap-half">
+        <% @run.logs.ordered.each do |log| %>
+          <li class="txt-small">
+            <strong><%= log.sequence %>. <%= log.stream %></strong>
+            <pre class="txt-x-small"><%= log.content %></pre>
+          </li>
+        <% end %>
+      </ol>
+    <% else %>
+      <p class="margin-none txt-small txt-subtle">No logs have been streamed for this run.</p>
+    <% end %>
+  </section>
+</article>

@@ -1,0 +1,47 @@
+<% @page_title = "Factory" %>
+
+<% content_for :header do %>
+  <div class="header__actions header__actions--start">
+    <%= back_link_to "Home", root_path, "keydown.left@document->hotkey#click keydown.esc@document->hotkey#click" %>
+  </div>
+
+  <h1 class="header__title" data-bridge--title-target="header"><%= @page_title %></h1>
+<% end %>
+
+<section class="panel panel--wide shadow center txt-align-start flex flex-column gap">
+  <nav class="flex gap flex-wrap">
+    <%= link_to "Profiles", factory_profiles_path, class: "btn btn--link" %>
+    <%= link_to "Skills", factory_skills_path, class: "btn btn--link" %>
+    <%= link_to "Runners", factory_runners_path, class: "btn btn--link" %>
+  </nav>
+
+  <div class="flex flex-column gap-half">
+    <h2 class="txt-large margin-none">Runs</h2>
+    <% if @runs.any? %>
+      <table class="max-width txt-small">
+        <thead>
+          <tr>
+            <th>Card</th>
+            <th>Profile</th>
+            <th>State</th>
+            <th>Runner</th>
+            <th>Updated</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @runs.each do |run| %>
+            <tr>
+              <td><%= link_to "##{run.card.number}", run.card %></td>
+              <td><%= link_to run.profile.name, factory_profile_path(run.profile) %></td>
+              <td><%= link_to run.state.humanize, factory_run_path(run) %></td>
+              <td><%= run.runner&.name || "-" %></td>
+              <td><%= time_tag run.updated_at, l(run.updated_at, format: :day_month_year) %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    <% else %>
+      <p class="margin-none">No factory runs have been queued yet.</p>
+    <% end %>
+  </div>
+</section>

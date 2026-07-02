@@ -1,0 +1,41 @@
+<% @page_title = "Factory Runners" %>
+
+<% content_for :header do %>
+  <div class="header__actions header__actions--start">
+    <%= back_link_to "Factory", factory_root_path, "keydown.left@document->hotkey#click keydown.esc@document->hotkey#click" %>
+  </div>
+
+  <h1 class="header__title" data-bridge--title-target="header"><%= @page_title %></h1>
+<% end %>
+
+<section class="panel panel--wide shadow center txt-align-start flex flex-column gap">
+  <% if @runners.any? %>
+    <table class="max-width txt-small">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Kind</th>
+          <th>Active</th>
+          <th>Last seen</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @runners.each do |runner| %>
+          <tr>
+            <td><%= link_to runner.name, factory_runner_path(runner) %></td>
+            <td><%= runner.kind %></td>
+            <td><%= runner.active? ? "Yes" : "No" %></td>
+            <td><%= runner.last_seen_at ? time_tag(runner.last_seen_at, l(runner.last_seen_at, format: :day_month_year)) : "-" %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% else %>
+    <p class="margin-none">No runners registered.</p>
+  <% end %>
+
+  <%= link_to new_factory_runner_path, class: "btn btn--link" do %>
+    <%= icon_tag "add" %>
+    <span>New runner</span>
+  <% end %>
+</section>

@@ -9,6 +9,10 @@ class Account < ApplicationRecord
   has_many :tags, dependent: :destroy
   has_many :columns, dependent: :destroy
   has_many :entropies, dependent: :destroy
+  has_many :factory_skills, class_name: "Factory::Skill", dependent: :destroy
+  has_many :factory_profiles, class_name: "Factory::Profile", dependent: :destroy
+  has_many :factory_runners, class_name: "Factory::Runner", dependent: :destroy
+  has_many :factory_runs, class_name: "Factory::Run", dependent: :destroy
   has_many :exports, class_name: "Account::Export", dependent: :destroy
   has_many :imports, class_name: "Account::Import", dependent: :destroy
 

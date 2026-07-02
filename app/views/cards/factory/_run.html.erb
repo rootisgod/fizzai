@@ -1,0 +1,18 @@
+<li class="flex flex-column gap-half txt-small">
+  <div class="flex align-center gap-half flex-wrap">
+    <strong><%= run.profile.name %></strong>
+    <span class="txt-subtle"><%= run.state.humanize %></span>
+    <% if run.runner %>
+      <span class="txt-subtle">by <%= run.runner.name %></span>
+    <% end %>
+    <%= link_to "Details", factory_run_path(run), class: "txt-small" %>
+  </div>
+
+  <% if run.summary.present? %>
+    <p class="margin-none txt-subtle"><%= truncate(run.summary, length: 160) %></p>
+  <% elsif run.failure_reason.present? %>
+    <p class="margin-none txt-subtle"><%= truncate(run.failure_reason, length: 160) %></p>
+  <% elsif run.block_reason.present? %>
+    <p class="margin-none txt-subtle"><%= truncate(run.block_reason, length: 160) %></p>
+  <% end %>
+</li>

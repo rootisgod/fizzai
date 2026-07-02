@@ -1,0 +1,24 @@
+codex_local:
+  id: <%= ActiveRecord::FixtureSet.identify("factory_codex_local", :uuid) %>
+  account: 37s_uuid
+  name: Codex Local
+  description: Local Codex CLI profile for a first-pass implementation.
+  brain_provider: codex_cli
+  brain_model: gpt-5.4
+  prompt: Make the smallest useful implementation and report what changed.
+  runner_kind: dry_run
+  verification_command: npm test
+  max_iterations: 1
+  max_attempts: 2
+  active: true
+
+inactive_profile:
+  id: <%= ActiveRecord::FixtureSet.identify("factory_inactive_profile", :uuid) %>
+  account: 37s_uuid
+  name: Inactive Profile
+  brain_provider: codex_cli
+  brain_model: gpt-5.4
+  runner_kind: dry_run
+  max_iterations: 1
+  max_attempts: 1
+  active: false
