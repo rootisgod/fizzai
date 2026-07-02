@@ -2,21 +2,27 @@ require "test_helper"
 
 class My::TimezonesControllerTest < ActionDispatch::IntegrationTest
   setup do
-    sign_in_as :kevin
+    @user = users(:david)
+
+    sign_in_as @user
   end
 
   test "update" do
-    time_zone = ActiveSupport::TimeZone["America/New_York"]
+    assert_changes -> { @user.reload.settings.timezone_name }, to: "Europe/London" do
+      put my_timezone_path, params: { timezone_name: "Europe/London" }
+    end
 
-    assert_not_equal time_zone, users(:kevin).timezone
-    patch my_timezone_path, params: { timezone_name: "America/New_York" }
-    assert_equal time_zone, users(:kevin).reload.timezone
+    assert_response :no_content
   end
 
-  test "update as JSON" do
-    assert_not_equal ActiveSupport::TimeZone["America/Chicago"], users(:kevin).timezone
-    patch my_timezone_path, params: { timezone_name: "America/Chicago" }, as: :json
+  test "update creates missing settings" do
+    @user.settings.destroy!
+
+    assert_difference -> { User::Settings.count }, 1 do
+      put my_timezone_path, params: { timezone_name: "Europe/London" }
+    end
+
     assert_response :no_content
-    assert_equal ActiveSupport::TimeZone["America/Chicago"], users(:kevin).reload.timezone
+    assert_equal "Europe/London", @user.reload.settings.timezone_name
   end
 end

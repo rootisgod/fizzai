@@ -13,4 +13,13 @@ module User::Configurable
   def in_time_zone(&block)
     Time.use_zone(timezone, &block)
   end
+
+  def settings
+    super || create_missing_settings
+  end
+
+  private
+    def create_missing_settings
+      create_settings! if persisted?
+    end
 end
