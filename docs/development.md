@@ -49,6 +49,14 @@ The full continuous integration tests can be run with:
 bin/ci
 ```
 
+The Docker-backed golden path can be run with:
+
+```sh
+bin/golden_path
+```
+
+This builds the production Docker image, starts a disposable container, signs up a fresh user, creates a board, adds a card, and verifies the records in the container database.
+
 ### Database configuration
 
 Fizzy works with SQLite by default and supports MySQL too. You can switch adapters with the `DATABASE_ADAPTER` environment variable. For example, to develop locally against MySQL:
@@ -77,4 +85,3 @@ Under the hood, this will create or remove `tmp/email-dev.txt`.
 37signals bundles Fizzy with [`fizzy-saas`](https://github.com/basecamp/fizzy/tree/main/saas), a companion gem that links Fizzy with our billing system and contains our production setup.
 
 This gem depends on some private git repositories and it is not meant to be used by third parties. But we hope it can serve as inspiration for anyone wanting to run fizzy on their own infrastructure.
-

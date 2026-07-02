@@ -1,0 +1,135 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+IMAGE="fizzai-golden-path:local"
+CONTAINER="fizzai-golden-path-$(date +%s)-$$"
+PORT="${FIZZY_GOLDEN_PATH_PORT:-}"
+BUILD=1
+KEEP_CONTAINER="${FIZZY_GOLDEN_PATH_KEEP_CONTAINER:-0}"
+
+usage() {
+  cat <<USAGE
+Usage: bin/golden_path [--no-build] [--keep] [--port PORT]
+
+Builds the production Docker image, starts a disposable container, and runs the
+signup -> board -> card golden path through a real browser.
+
+Options:
+  --no-build   Reuse the existing local ${IMAGE} image.
+  --keep       Leave the container running after the test.
+  --port PORT  Bind the container to a specific localhost port.
+USAGE
+}
+
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+    --no-build)
+      BUILD=0
+      ;;
+    --keep)
+      KEEP_CONTAINER=1
+      ;;
+    --port)
+      shift
+      PORT="${1:-}"
+      ;;
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    *)
+      echo "Unknown argument: $1" >&2
+      usage >&2
+      exit 64
+      ;;
+  esac
+  shift
+done
+
+if ! command -v docker >/dev/null 2>&1; then
+  echo "Docker is required to run the golden path." >&2
+  exit 1
+fi
+
+if ! docker info >/dev/null 2>&1; then
+  echo "Docker is not running or is not reachable." >&2
+  exit 1
+fi
+
+ruby_cmd=(ruby)
+bundle_ruby_cmd=(bundle exec ruby)
+if command -v mise >/dev/null 2>&1; then
+  ruby_cmd=(mise exec -- ruby)
+  bundle_ruby_cmd=(mise exec -- bundle exec ruby)
+fi
+
+if [ -z "$PORT" ]; then
+  PORT="$("${ruby_cmd[@]}" -rsocket -e 'server = TCPServer.new("127.0.0.1", 0); puts server.addr[1]; server.close')"
+fi
+
+if ! [[ "$PORT" =~ ^[0-9]+$ ]] || [ "$PORT" -lt 1 ] || [ "$PORT" -gt 65535 ]; then
+  echo "Invalid port: ${PORT}" >&2
+  exit 64
+fi
+
+cleanup() {
+  local status=$?
+
+  if [ "$KEEP_CONTAINER" = "1" ]; then
+    echo "Leaving container running: ${CONTAINER}" >&2
+  else
+    docker rm -f "$CONTAINER" >/dev/null 2>&1 || true
+  fi
+
+  exit "$status"
+}
+trap cleanup EXIT INT TERM
+
+if [ "$BUILD" = "1" ]; then
+  docker build -t "$IMAGE" .
+elif ! docker image inspect "$IMAGE" >/dev/null 2>&1; then
+  echo "Image ${IMAGE} does not exist. Run without --no-build first." >&2
+  exit 1
+fi
+
+docker_run=(docker run -d --name "$CONTAINER")
+if [ "$KEEP_CONTAINER" != "1" ]; then
+  docker_run+=(--rm)
+fi
+
+"${docker_run[@]}" \
+  -p "127.0.0.1:${PORT}:80" \
+  -e "BASE_URL=http://127.0.0.1:${PORT}" \
+  -e "DISABLE_SSL=true" \
+  -e "RAILS_LOG_LEVEL=info" \
+  -e "SOLID_QUEUE_IN_PUMA=false" \
+  -e "WEB_CONCURRENCY=1" \
+  -e "SECRET_KEY_BASE=0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef" \
+  "$IMAGE" >/dev/null
+
+health_url="http://127.0.0.1:${PORT}/up"
+deadline=$((SECONDS + 120))
+
+until curl -fsS "$health_url" >/dev/null 2>&1; do
+  if ! docker ps -q -f "name=^/${CONTAINER}$" | grep -q .; then
+    echo "Golden path container exited before becoming healthy." >&2
+    docker logs --tail 200 "$CONTAINER" >&2 || true
+    exit 1
+  fi
+
+  if [ "$SECONDS" -ge "$deadline" ]; then
+    echo "Timed out waiting for ${health_url}." >&2
+    docker logs --tail 200 "$CONTAINER" >&2 || true
+    exit 1
+  fi
+
+  sleep 2
+done
+
+if ! "${bundle_ruby_cmd[@]}" test/golden_path/runner.rb \
+    --base-url "http://127.0.0.1:${PORT}" \
+    --container "$CONTAINER"; then
+  echo "Golden path failed. Recent container logs:" >&2
+  docker logs --tail 200 "$CONTAINER" >&2 || true
+  exit 1
+fi

@@ -22,6 +22,7 @@ Login with: david@example.com (development fixtures), password will appear in th
 bin/rails test                    # Run unit tests (fast)
 bin/rails test test/path/file_test.rb  # Run single test file
 bin/rails test:system             # Run system tests (Capybara + Selenium)
+bin/golden_path                   # Run Docker-backed signup/board/card golden path
 bin/ci                            # Run full CI suite (style, security, tests)
 
 # For parallel test execution issues, use:
