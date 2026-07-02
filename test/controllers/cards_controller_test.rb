@@ -82,6 +82,21 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "show renders factory run status and escaped latest progress" do
+    card = cards(:text)
+    run = Factory::Run.queue_for(card: card, profile: factory_profiles(:codex_local), requester: users(:kevin))
+    run.claim_by(factory_runners(:local))
+    run.add_log!(stream: "agent", content: "<script data-factory-log>alert(1)</script>\nBuild completed")
+
+    get card_path(card)
+    assert_response :success
+
+    assert_select "a[href=?]", factory_run_path(run), text: "Open status"
+    assert_select ".factory-run__state", text: "Running"
+    assert_includes response.body, "&lt;script data-factory-log&gt;alert(1)&lt;/script&gt;"
+    refute_includes response.body, "<script data-factory-log>alert(1)</script>"
+  end
+
   test "edit" do
     get edit_card_path(cards(:logo))
     assert_response :success

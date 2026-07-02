@@ -7,9 +7,16 @@ class Factory::RunLog < ApplicationRecord
   validates :stream, inclusion: { in: Factory::Run::STREAMS }
   validate :record_shares_account
 
+  after_create_commit :broadcast_progress
+
   scope :ordered, -> { order(:sequence, :id) }
 
   private
+    def broadcast_progress
+      run.broadcast_refresh_later
+      run.card.broadcast_refresh_later
+    end
+
     def record_shares_account
       return if run.blank?
 

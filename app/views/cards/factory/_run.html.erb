@@ -1,18 +1,36 @@
+<% latest_log = run.latest_log %>
+
 <li class="flex flex-column gap-half txt-small">
   <div class="flex align-center gap-half flex-wrap">
     <strong><%= run.profile.name %></strong>
-    <span class="txt-subtle"><%= run.state.humanize %></span>
+    <span class="factory-run__state txt-subtle"><%= run.state.humanize %></span>
     <% if run.runner %>
       <span class="txt-subtle">by <%= run.runner.name %></span>
     <% end %>
-    <%= link_to "Details", factory_run_path(run), class: "txt-small" %>
+    <%= link_to "Open status", factory_run_path(run), class: "txt-small" %>
+  </div>
+
+  <div class="flex align-center gap-half flex-wrap txt-x-small txt-subtle">
+    <span>Attempt <%= run.attempts_count %>/<%= run.max_attempts %></span>
+    <span><%= pluralize(run.logs.count, "log") %></span>
+    <% if run.heartbeat_at.present? %>
+      <span>Updated <%= time_ago_in_words(run.heartbeat_at) %> ago</span>
+    <% else %>
+      <span>Queued <%= time_ago_in_words(run.created_at) %> ago</span>
+    <% end %>
   </div>
 
   <% if run.summary.present? %>
-    <p class="margin-none txt-subtle"><%= truncate(run.summary, length: 160) %></p>
+    <p class="margin-none txt-subtle"><strong>Summary:</strong> <%= truncate(run.summary, length: 160) %></p>
   <% elsif run.failure_reason.present? %>
-    <p class="margin-none txt-subtle"><%= truncate(run.failure_reason, length: 160) %></p>
+    <p class="margin-none txt-subtle"><strong>Failed:</strong> <%= truncate(run.failure_reason, length: 160) %></p>
   <% elsif run.block_reason.present? %>
-    <p class="margin-none txt-subtle"><%= truncate(run.block_reason, length: 160) %></p>
+    <p class="margin-none txt-subtle"><strong>Blocked:</strong> <%= truncate(run.block_reason, length: 160) %></p>
+  <% elsif latest_log.present? %>
+    <p class="margin-none txt-subtle">
+      <strong>Latest <%= latest_log.stream %>:</strong> <%= truncate(latest_log.content, length: 240) %>
+    </p>
+  <% elsif run.queued? || run.running? %>
+    <p class="margin-none txt-subtle">Waiting for runner logs.</p>
   <% end %>
 </li>

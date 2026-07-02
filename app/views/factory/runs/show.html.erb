@@ -8,6 +8,8 @@
   <h1 class="header__title" data-bridge--title-target="header"><%= @page_title %></h1>
 <% end %>
 
+<%= turbo_stream_from @run %>
+
 <article class="panel panel--wide shadow center txt-align-start flex flex-column gap">
   <header class="flex flex-column gap-half">
     <h2 class="txt-large margin-none"><%= link_to "##{@run.card.number} #{@run.card.title}", @run.card %></h2>

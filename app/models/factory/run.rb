@@ -22,6 +22,8 @@ class Factory::Run < ApplicationRecord
   scope :oldest_first, -> { order(:created_at, :id) }
 
   before_validation :set_defaults, on: :create
+  after_create_commit :broadcast_progress
+  after_update_commit :broadcast_progress
 
   validates :branch_name, presence: true
   validates :state, inclusion: { in: STATES }
@@ -171,11 +173,20 @@ class Factory::Run < ApplicationRecord
     profile.build_prompt_for(self)
   end
 
+  def latest_log
+    logs.order(sequence: :desc, id: :desc).first
+  end
+
   def add_system_note!(body)
     card.comments.create!(account: account, creator: account.system_user, body: body)
   end
 
   private
+    def broadcast_progress
+      broadcast_refresh_later
+      card.broadcast_refresh_later
+    end
+
     def set_defaults
       self.max_attempts ||= profile&.max_attempts || 2
       self.max_iterations ||= profile&.max_iterations || 1

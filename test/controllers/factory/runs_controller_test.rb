@@ -13,8 +13,10 @@ class Factory::RunsControllerTest < ActionDispatch::IntegrationTest
       }
     end
 
-    assert_redirected_to card_path(cards(:text))
-    assert_equal "queued", Factory::Run.order(:created_at).last.state
+    run = Factory::Run.order(:created_at).last
+
+    assert_redirected_to factory_run_path(run)
+    assert_equal "queued", run.state
   end
 
   test "member cannot queue a factory run on another creator's card" do

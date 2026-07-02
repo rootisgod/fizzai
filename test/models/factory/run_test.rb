@@ -58,4 +58,18 @@ class Factory::RunTest < ActiveSupport::TestCase
     assert_predicate run.reload, :failed?
     assert_equal "Still failing", run.failure_reason
   end
+
+  test "runner logs refresh open run and card pages" do
+    run = Factory::Run.queue_for(card: @card, profile: @profile, requester: users(:kevin))
+    clear_enqueued_jobs
+    clear_performed_jobs
+
+    perform_enqueued_jobs do
+      assert_turbo_stream_broadcasts(run, count: 1) do
+        assert_turbo_stream_broadcasts(@card, count: 1) do
+          run.add_log!(stream: "agent", content: "Building in local runner")
+        end
+      end
+    end
+  end
 end

@@ -104,7 +104,7 @@ fi
   -e "RAILS_LOG_LEVEL=info" \
   -e "SOLID_QUEUE_IN_PUMA=false" \
   -e "WEB_CONCURRENCY=1" \
-  -e "SECRET_KEY_BASE=0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef" \
+  -e "SECRET_KEY_BASE=golden-path-local-test-secret-key-base-not-a-secret-for-docker-smoke" \
   "$IMAGE" >/dev/null
 
 health_url="http://127.0.0.1:${PORT}/up"

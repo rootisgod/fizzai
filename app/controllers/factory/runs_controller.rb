@@ -20,7 +20,7 @@ class Factory::RunsController < ApplicationController
     run = Factory::Run.queue_for(card: card, profile: profile, requester: Current.user)
 
     respond_to do |format|
-      format.html { redirect_to card, notice: "Factory run queued" }
+      format.html { redirect_to factory_run_path(run), notice: "Factory run queued" }
       format.json { render json: run_payload(run), status: :created }
     end
   end
