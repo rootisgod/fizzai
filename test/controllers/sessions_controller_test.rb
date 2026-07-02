@@ -31,6 +31,21 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "create shows the magic link code in development for persisted links" do
+    Rails.env.stubs(:development?).returns(true)
+    identity = identities(:kevin)
+
+    untenanted do
+      assert_difference -> { MagicLink.count }, 1 do
+        post session_path, params: { email_address: identity.email_address }
+      end
+
+      assert_redirected_to session_magic_link_path
+      assert_equal MagicLink.last.code, flash[:magic_link_code]
+      assert_equal MagicLink.last.code, response.headers["X-Magic-Link-Code"]
+    end
+  end
+
   test "create for a new user" do
     untenanted do
       assert_difference -> { MagicLink.count }, +1 do
@@ -56,6 +71,22 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
         end
 
         assert_redirected_to session_magic_link_path
+      end
+    end
+  end
+
+  test "create does not show a fake magic link code in development" do
+    Rails.env.stubs(:development?).returns(true)
+
+    with_multi_tenant_mode(false) do
+      untenanted do
+        assert_no_difference -> { MagicLink.count } do
+          post session_path, params: { email_address: "missing-#{SecureRandom.hex(6)}@example.com" }
+        end
+
+        assert_redirected_to session_magic_link_path
+        assert_nil flash[:magic_link_code]
+        assert_nil response.headers["X-Magic-Link-Code"]
       end
     end
   end
