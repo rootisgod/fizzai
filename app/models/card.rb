@@ -95,6 +95,10 @@ class Card < ApplicationRecord
     end
 
     def assign_number
-      self.number ||= account.with_lock { account.increment!(:cards_count).cards_count }
+      self.number ||= account.with_lock do
+        next_number = [ account.cards_count, account.cards.maximum(:number).to_i ].max + 1
+        account.update!(cards_count: next_number)
+        next_number
+      end
     end
 end

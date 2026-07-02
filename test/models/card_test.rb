@@ -18,6 +18,18 @@ class CardTest < ActiveSupport::TestCase
     assert_equal account.reload.cards_count, card.number
   end
 
+  test "create assigns the next available number when the account counter is stale" do
+    user = users(:david)
+    board = boards(:writebook)
+    account = board.account
+    account.update!(cards_count: 0)
+
+    card = Card.create!(title: "Test", board: board, creator: user)
+
+    assert_equal 6, card.number
+    assert_equal card.number, account.reload.cards_count
+  end
+
   test "assignment states" do
     assert cards(:logo).assigned_to?(users(:kevin))
     assert_not cards(:logo).assigned_to?(users(:david))
