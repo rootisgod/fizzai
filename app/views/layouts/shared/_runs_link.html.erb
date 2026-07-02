@@ -1,0 +1,7 @@
+<% if Current.user.admin? %>
+  <%= link_to factory_root_path, class: "factory-runs-link btn btn--link btn--circle-mobile hide-on-native", aria: { label: "Runs" },
+        data: { bridge__overflow_menu_target: "item", bridge_title: "Runs" } do %>
+    <%= icon_tag "activity" %>
+    <span>Runs</span>
+  <% end %>
+<% end %>

@@ -85,6 +85,12 @@
     }
   }
 
+  .factory-runs-link {
+    inset-block-start: calc(var(--block-space-half) + var(--custom-safe-inset-top));
+    inset-inline-end: var(--main-padding);
+    position: absolute;
+  }
+
   .header__logo {
     color: var(--color-ink);
     font-size: 1.2rem;

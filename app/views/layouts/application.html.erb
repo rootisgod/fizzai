@@ -14,6 +14,7 @@
       <header class="header header--mobile-actions-stack <%= @header_class %>" id="header">
         <a href="#main" class="header__skip-navigation btn" data-turbo="false">Skip to main content</a>
         <%= render "my/menu" if Current.user %>
+        <%= render "layouts/shared/runs_link" if Current.user %>
         <%= yield :header %>
       </header>
 

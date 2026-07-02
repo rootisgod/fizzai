@@ -16,6 +16,20 @@ class EventsControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "admin sees global runs link" do
+    get events_path
+
+    assert_select "a.factory-runs-link[href=?]", factory_root_path, text: /Runs/
+  end
+
+  test "member does not see global runs link" do
+    logout_and_sign_in_as :jz
+
+    get events_path
+
+    assert_select "a.factory-runs-link", count: 0
+  end
+
   test "index with a specific timezone" do
     cookies[:timezone] = "America/New_York"
 
